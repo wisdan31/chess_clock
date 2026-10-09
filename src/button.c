@@ -1,33 +1,37 @@
-
 #include <stdio.h>
+#include <stdint.h>
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
 #include <driver/gpio.h>
 
+#include "esp_timer.h"
 #include "button.h"
 
 #define BUTTON_GPIO GPIO_NUM_18
 
 static void button_task(void *arg)
 {
-    int previous_state = 0;
+    int stable_state = 0;
+
+    int64_t ;
 
     while (1)
     {
-        int current_state = gpio_get_level(BUTTON_GPIO);
+        int candidate_state = gpio_get_level(BUTTON_GPIO);
 
-        if (current_state == 1 && previous_state == 0)
+        if (candidate_state == 1 && stable_state == 0)
         {
             printf("Button pressed!\n");
         }
 
-        if (current_state == 0 && previous_state == 1)
+        if (candidate_state == 0 && stable_state == 1)
         {
             printf("Button released!\n");
         }
 
-        previous_state = current_state;
+        stable_state = candidate_state;
 
         vTaskDelay(pdMS_TO_TICKS(20));
     }
