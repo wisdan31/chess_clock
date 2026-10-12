@@ -14,26 +14,36 @@
 static void button_task(void *arg)
 {
     int stable_state = 0;
+    int candidate_state = 0;
 
-    int64_t ;
+    int64_t candidate_since = esp_timer_get_time();
 
     while (1)
     {
-        int candidate_state = gpio_get_level(BUTTON_GPIO);
+        int button_level = gpio_get_level(BUTTON_GPIO);
+        int64_t timestamp = esp_timer_get_time();
 
-        if (candidate_state == 1 && stable_state == 0)
+        if (button_level != candidate_state)
         {
-            printf("Button pressed!\n");
+            candidate_state = button_level;
+            candidate_since = timestamp;
         }
 
-        if (candidate_state == 0 && stable_state == 1)
+        if ((stable_state != candidate_state) && (timestamp - candidate_since >= 20000))
         {
-            printf("Button released!\n");
+            stable_state = candidate_state;
+
+            if (stable_state == 1)
+            {
+                printf("Button pressed!\n");
+            }
+            else
+            {
+                printf("Button released!\n");
+            }
         }
 
-        stable_state = candidate_state;
-
-        vTaskDelay(pdMS_TO_TICKS(20));
+        vTaskDelay(pdMS_TO_TICKS(5));
     }
 }
 
