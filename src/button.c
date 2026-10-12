@@ -9,8 +9,6 @@
 #include "esp_timer.h"
 #include "button.h"
 
-#define BUTTON_GPIO GPIO_NUM_18
-
 static void button_task(void *arg)
 {
     int stable_state = 0;
@@ -20,7 +18,7 @@ static void button_task(void *arg)
 
     while (1)
     {
-        int button_level = gpio_get_level(BUTTON_GPIO);
+        int button_level = gpio_get_level(button_gpio);
         int64_t timestamp = esp_timer_get_time();
 
         if (button_level != candidate_state)
@@ -47,10 +45,10 @@ static void button_task(void *arg)
     }
 }
 
-void button_init(void)
+void button_init(int button_gpio)
 {
     gpio_config_t button_config = {
-        .pin_bit_mask = (1ULL << BUTTON_GPIO),
+        .pin_bit_mask = (1ULL << button_gpio),
         .mode = GPIO_MODE_INPUT,
         .pull_down_en = GPIO_PULLDOWN_ENABLE};
 
