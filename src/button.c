@@ -11,6 +11,8 @@
 
 static void button_task(void *arg)
 {
+    int button_gpio = (int)(intptr_t)arg;
+
     int stable_state = 0;
     int candidate_state = 0;
 
@@ -58,7 +60,7 @@ void button_init(int button_gpio)
         button_task,
         "button_task",
         2048,
-        NULL,
+        (void *)(intptr_t)button_gpio,
         5,
         NULL);
 }
