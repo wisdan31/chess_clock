@@ -11,7 +11,7 @@
 
 static void button_task(void *arg)
 {
-    int button_gpio = (int)(intptr_t)arg;
+    button_config config = *config;
 
     int stable_state = 0;
     int candidate_state = 0;
@@ -20,7 +20,7 @@ static void button_task(void *arg)
 
     while (1)
     {
-        int button_level = gpio_get_level(button_gpio);
+        int button_level = gpio_get_level(config->gpio);
         int64_t timestamp = esp_timer_get_time();
 
         if (button_level != candidate_state)
@@ -47,10 +47,10 @@ static void button_task(void *arg)
     }
 }
 
-void button_init(int button_gpio)
+void button_init(button_config config)
 {
     gpio_config_t button_config = {
-        .pin_bit_mask = (1ULL << button_gpio),
+        .pin_bit_mask = (1ULL << config.gpio),
         .mode = GPIO_MODE_INPUT,
         .pull_down_en = GPIO_PULLDOWN_ENABLE};
 
@@ -60,7 +60,7 @@ void button_init(int button_gpio)
         button_task,
         "button_task",
         2048,
-        (void *)(intptr_t)button_gpio,
+        &config,
         5,
         NULL);
 }
